@@ -4,7 +4,7 @@ const sessionSchema = new mongoose.Schema({
   sessionId: {
     type: String,
     required: true,
-    default: () => 'session_' + Math.random().toString(36).substr(2, 9),
+    default: () => `session_${new Date().getTime()}_${Math.random().toString(36).substr(2, 9)}`,
     unique: true
   },
   host: {
@@ -17,8 +17,14 @@ const sessionSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
     },
-    joinedAt: Date,
-    isActive: Boolean,
+    joinedAt: {
+      type: Date,
+      default: Date.now
+    },
+    isActive: {
+      type: Boolean,
+      default: true
+    },
     role: {
       type: String,
       enum: ['host', 'participant'],
@@ -33,12 +39,9 @@ const sessionSchema = new mongoose.Schema({
   cartId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Cart'
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  endedAt: Date
+  }
+}, {
+  timestamps: true
 });
 
 module.exports = mongoose.model('Session', sessionSchema);

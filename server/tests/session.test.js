@@ -1,40 +1,23 @@
 const request = require('supertest');
-const mongoose = require('mongoose');
 const app = require('../app');
-const Session = require('../models/Session');
 const User = require('../models/User');
 
 describe('Session Endpoints', () => {
   let authToken;
   let testUser;
 
-  beforeAll(async () => {
-    await mongoose.connect(process.env.MONGODB_URI);
-    
+  beforeEach(async () => {
     // Create test user
-    testUser = await User.create({
-      email: 'test@example.com',
-      password: 'password123',
-      name: 'Test User'
-    });
-
-    // Get auth token
-    const loginRes = await request(app)
-      .post('/api/auth/login')
+    const registerRes = await request(app)
+      .post('/api/auth/register')
       .send({
-        email: 'test@example.com',
-        password: 'password123'
+        email: 'session-test@example.com',
+        password: 'password123',
+        name: 'Session Test User'
       });
 
-    authToken = loginRes.body.token;
-  });
-
-  afterAll(async () => {
-    await mongoose.connection.close();
-  });
-
-  beforeEach(async () => {
-    await Session.deleteMany({});
+    testUser = registerRes.body.user;
+    authToken = registerRes.body.token;
   });
 
   describe('POST /api/sessions', () => {
@@ -45,29 +28,23 @@ describe('Session Endpoints', () => {
 
       expect(res.statusCode).toBe(201);
       expect(res.body).toHaveProperty('participants');
-      expect(res.body.participants[0].user.toString()).toBe(testUser._id.toString());
+      expect(res.body.participants[0].user.toString()).toBe(testUser._id);
     });
   });
 
   describe('GET /api/sessions/:sessionId', () => {
     it('should get session details', async () => {
       // Create a session first
-      const session = await Session.create({
-        host: testUser._id,
-        participants: [{
-          user: testUser._id,
-          joinedAt: new Date(),
-          isActive: true,
-          role: 'host'
-        }]
-      });
+      const createRes = await request(app)
+        .post('/api/sessions')
+        .set('Authorization', `Bearer ${authToken}`);
 
       const res = await request(app)
-        .get(`/api/sessions/${session._id}`)
+        .get(`/api/sessions/${createRes.body._id}`)
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.statusCode).toBe(200);
-      expect(res.body._id).toBe(session._id.toString());
+      expect(res.body._id).toBe(createRes.body._id);
     });
   });
 });

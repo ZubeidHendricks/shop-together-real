@@ -1,63 +1,28 @@
 const request = require('supertest');
-const mongoose = require('mongoose');
 const app = require('../app');
-const Cart = require('../models/Cart');
-const User = require('../models/User');
-const Session = require('../models/Session');
 
 describe('Cart Endpoints', () => {
   let authToken;
-  let testUser;
   let testSession;
-  let testCart;
-
-  beforeAll(async () => {
-    await mongoose.connect(process.env.MONGODB_URI);
-    
-    // Create test user
-    testUser = await User.create({
-      email: 'test@example.com',
-      password: 'password123',
-      name: 'Test User'
-    });
-
-    // Get auth token
-    const loginRes = await request(app)
-      .post('/api/auth/login')
-      .send({
-        email: 'test@example.com',
-        password: 'password123'
-      });
-
-    authToken = loginRes.body.token;
-
-    // Create test session
-    testSession = await Session.create({
-      host: testUser._id,
-      participants: [{
-        user: testUser._id,
-        joinedAt: new Date(),
-        isActive: true,
-        role: 'host'
-      }]
-    });
-
-    // Create test cart
-    testCart = await Cart.create({
-      session: testSession._id,
-      items: []
-    });
-  });
-
-  afterAll(async () => {
-    await mongoose.connection.close();
-  });
 
   beforeEach(async () => {
-    await Cart.updateOne(
-      { _id: testCart._id },
-      { $set: { items: [] } }
-    );
+    // Create test user and get token
+    const registerRes = await request(app)
+      .post('/api/auth/register')
+      .send({
+        email: 'cart-test@example.com',
+        password: 'password123',
+        name: 'Cart Test User'
+      });
+
+    authToken = registerRes.body.token;
+
+    // Create test session
+    const sessionRes = await request(app)
+      .post('/api/sessions')
+      .set('Authorization', `Bearer ${authToken}`);
+
+    testSession = sessionRes.body;
   });
 
   describe('POST /api/sessions/:sessionId/cart', () => {
@@ -80,16 +45,14 @@ describe('Cart Endpoints', () => {
   describe('DELETE /api/sessions/:sessionId/cart/:productId', () => {
     it('should remove item from cart', async () => {
       // First add an item
-      await Cart.findByIdAndUpdate(testCart._id, {
-        $push: {
-          items: {
-            productId: 'test-product',
-            quantity: 1,
-            price: 9.99,
-            addedBy: testUser._id
-          }
-        }
-      });
+      await request(app)
+        .post(`/api/sessions/${testSession._id}/cart`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          productId: 'test-product',
+          quantity: 1,
+          price: 9.99
+        });
 
       const res = await request(app)
         .delete(`/api/sessions/${testSession._id}/cart/test-product`)

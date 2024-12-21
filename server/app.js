@@ -5,6 +5,7 @@ const cors = require('cors');
 const authMiddleware = require('./middleware/auth');
 
 // Import controllers
+const authController = require('./controllers/AuthController');
 const sessionController = require('./controllers/SessionController');
 
 const app = express();
@@ -13,10 +14,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Test route
+// Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
+
+// Auth routes
+app.post('/api/auth/register', authController.register);
+app.post('/api/auth/login', authController.login);
 
 // Session routes
 app.post('/api/sessions', authMiddleware, sessionController.createSession);

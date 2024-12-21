@@ -4,6 +4,7 @@ const sessionSchema = new mongoose.Schema({
   sessionId: {
     type: String,
     required: true,
+    default: () => 'session_' + Math.random().toString(36).substr(2, 9),
     unique: true
   },
   host: {
@@ -28,11 +29,6 @@ const sessionSchema = new mongoose.Schema({
     type: String,
     enum: ['active', 'ended'],
     default: 'active'
-  },
-  currentView: {
-    productId: String,
-    viewType: String,
-    timestamp: Date
   },
   cartId: {
     type: mongoose.Schema.Types.ObjectId,

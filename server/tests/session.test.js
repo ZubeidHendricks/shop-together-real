@@ -4,19 +4,21 @@ const app = require('../app');
 const Session = require('../models/Session');
 const User = require('../models/User');
 
-describe('Session Tests', () => {
+describe('Session Endpoints', () => {
   let authToken;
   let testUser;
 
   beforeAll(async () => {
-    await mongoose.connect(process.env.TEST_MONGODB_URI);
+    await mongoose.connect(process.env.MONGODB_URI);
     
+    // Create test user
     testUser = await User.create({
       email: 'test@example.com',
       password: 'password123',
       name: 'Test User'
     });
 
+    // Get auth token
     const loginRes = await request(app)
       .post('/api/auth/login')
       .send({
@@ -39,33 +41,33 @@ describe('Session Tests', () => {
     it('should create a new session', async () => {
       const res = await request(app)
         .post('/api/sessions')
-        .set('Authorization', `Bearer ${authToken}`)
-        .send();
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.statusCode).toBe(201);
-      expect(res.body).toHaveProperty('sessionId');
-      expect(res.body.host).toBe(testUser.id);
+      expect(res.body).toHaveProperty('participants');
+      expect(res.body.participants[0].user.toString()).toBe(testUser._id.toString());
     });
   });
 
-  describe('POST /api/sessions/:sessionId/join', () => {
-    it('should join an existing session', async () => {
+  describe('GET /api/sessions/:sessionId', () => {
+    it('should get session details', async () => {
+      // Create a session first
       const session = await Session.create({
-        sessionId: 'test-session',
-        host: testUser.id,
-        status: 'active'
+        host: testUser._id,
+        participants: [{
+          user: testUser._id,
+          joinedAt: new Date(),
+          isActive: true,
+          role: 'host'
+        }]
       });
 
       const res = await request(app)
-        .post(`/api/sessions/${session.sessionId}/join`)
+        .get(`/api/sessions/${session._id}`)
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.statusCode).toBe(200);
-      expect(res.body.participants).toContainEqual(
-        expect.objectContaining({
-          user: testUser.id.toString()
-        })
-      );
+      expect(res.body._id).toBe(session._id.toString());
     });
   });
 });

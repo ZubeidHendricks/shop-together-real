@@ -11,27 +11,27 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true
+    required: true,
+    minlength: 6
   },
   name: {
     type: String,
     required: true,
     trim: true
-  },
-  activeSessions: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Session'
-  }],
-  lastActive: Date,
-  createdAt: {
-    type: Date,
-    default: Date.now
+  }
+}, {
+  timestamps: true,
+  toJSON: {
+    transform: function(doc, ret) {
+      delete ret.password;
+      return ret;
+    }
   }
 });
 
 userSchema.pre('save', async function(next) {
   if (this.isModified('password')) {
-    this.password = await bcrypt.hash(this.password, 10);
+    this.password = await bcrypt.hash(this.password, 8);
   }
   next();
 });

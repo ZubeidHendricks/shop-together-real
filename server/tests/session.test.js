@@ -7,17 +7,17 @@ describe('Session Endpoints', () => {
   let testUser;
 
   beforeEach(async () => {
-    // Create test user
-    const registerRes = await request(app)
+    // Create test user and get token
+    const registerResponse = await request(app)
       .post('/api/auth/register')
       .send({
         email: 'session-test@example.com',
         password: 'password123',
-        name: 'Session Test User'
+        name: 'Test User'
       });
-
-    testUser = registerRes.body.user;
-    authToken = registerRes.body.token;
+    
+    authToken = registerResponse.body.token;
+    testUser = registerResponse.body.user;
   });
 
   describe('POST /api/sessions', () => {
@@ -28,7 +28,7 @@ describe('Session Endpoints', () => {
 
       expect(res.statusCode).toBe(201);
       expect(res.body).toHaveProperty('participants');
-      expect(res.body.participants[0].user.toString()).toBe(testUser._id);
+      expect(res.body.participants[0].user._id).toBe(testUser._id);
     });
   });
 

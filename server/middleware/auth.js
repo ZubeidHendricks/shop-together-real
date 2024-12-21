@@ -3,13 +3,13 @@ const User = require('../models/User');
 
 const authMiddleware = async (req, res, next) => {
   try {
-    const token = req.headers.authorization?.replace('Bearer ', '');
+    const token = req.header('Authorization')?.replace('Bearer ', '');
     
     if (!token) {
-      return res.status(401).json({ error: 'Authentication required' });
+      return res.status(401).json({ error: 'No token provided' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'test-secret');
     const user = await User.findById(decoded.userId);
 
     if (!user) {
@@ -19,8 +19,7 @@ const authMiddleware = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    res.status(401).json({ error: 'Invalid token' });
+    console.error('Auth error:', error);
+    res.status(401).json({ error: 'Please authenticate' });
   }
 };
-
-module.exports = authMiddleware;

@@ -6,23 +6,23 @@ describe('Cart Endpoints', () => {
   let testSession;
 
   beforeEach(async () => {
-    // Register a user
-    const registerRes = await request(app)
+    // Create test user and get token
+    const registerResponse = await request(app)
       .post('/api/auth/register')
       .send({
-        email: 'test2@example.com',
+        email: 'cart-test@example.com',
         password: 'password123',
-        name: 'Test User 2'
+        name: 'Cart Test User'
       });
+    
+    authToken = registerResponse.body.token;
 
-    authToken = registerRes.body.token;
-
-    // Create a session
-    const sessionRes = await request(app)
+    // Create test session
+    const sessionResponse = await request(app)
       .post('/api/sessions')
       .set('Authorization', `Bearer ${authToken}`);
 
-    testSession = sessionRes.body;
+    testSession = sessionResponse.body;
   });
 
   describe('POST /api/sessions/:sessionId/cart', () => {

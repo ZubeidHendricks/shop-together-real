@@ -6,17 +6,27 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    lowercase: true
+    lowercase: true,
+    trim: true
   },
   password: {
     type: String,
     required: true
   },
-  name: String,
-  sessions: [{
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  activeSessions: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Session'
-  }]
+  }],
+  lastActive: Date,
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
 });
 
 userSchema.pre('save', async function(next) {
@@ -25,5 +35,9 @@ userSchema.pre('save', async function(next) {
   }
   next();
 });
+
+userSchema.methods.comparePassword = async function(candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
+};
 
 module.exports = mongoose.model('User', userSchema);

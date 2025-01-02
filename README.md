@@ -1,4 +1,31 @@
-{
-  "content": "IyBTaG9wIFRvZ2V0aGVyIEFwcAoKQSByZWFsLXRpbWUgY29sbGFib3JhdGl2ZSBzaG9wcGluZyBwbGF0Zm9ybS4KCiMjIEZlYXR1cmVzCgotIFJlYWwtdGltZSBzY3JlZW4gc3luY2hyb25pemF0aW9uCi0gVm9pY2UgY2hhdAotIEN1cnNvciB0cmFja2luZwotIFNoYXJlZCBjYXJ0Ci0gQXV0aGVudGljYXRpb24KLSBTaG9waWZ5IGludGVncmF0aW9uCgojIyBTZXR1cAoKMS4gQ2xvbmUgdGhlIHJlcG8KMi4gSW5zdGFsbCBkZXBlbmRlbmNpZXMKMy4gU2V0IHVwIGVudmlyb25tZW50IHZhcmlhYmxlcwo0LiBSdW4gdGhlIGRldmVsb3BtZW50IHNlcnZlcg==",
-  "encoding": "base64"
-}
+# Shop Together
+
+Real-time collaborative shopping platform with synchronized browsing and voice chat.
+
+## Features
+- Real-time screen synchronization
+- Voice chat
+- Cursor tracking
+- Shared cart
+- Authentication
+- Shopify integration
+
+## Setup
+1. Clone the repository
+2. Install dependencies
+   - `cd server && npm install`
+   - `cd client && npm install`
+3. Set up environment variables
+4. Run the application
+   - Development: `npm run dev`
+   - Production: `npm start`
+
+## Technologies
+- Backend: Node.js, Express, Socket.IO
+- Frontend: React
+- Database: MongoDB
+- Authentication: JWT
+- Real-time: WebSockets
+
+## Contributing
+Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.

@@ -1,0 +1,26 @@
+{
+  "name": "shop-together-server",
+  "version": "1.0.0",
+  "description": "Server for real-time collaborative shopping",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@shopify/shopify-api": "^7.5.0",
+    "express": "^4.17.1",
+    "socket.io": "^4.0.0",
+    "mongoose": "^6.0.0",
+    "jsonwebtoken": "^9.0.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "supertest": "^6.0.0",
+    "nodemon": "^2.0.0"
+  }
+}
